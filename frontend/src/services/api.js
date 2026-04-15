@@ -7,6 +7,15 @@ const api = axios.create({
   },
 })
 
+export function setAdminAuthToken(token) {
+  if (token) {
+    api.defaults.headers.common.Authorization = `Bearer ${token}`
+    return
+  }
+
+  delete api.defaults.headers.common.Authorization
+}
+
 export function getErrorMessage(error, fallback = 'Something went wrong.') {
   return (
     error?.response?.data?.error ||
@@ -21,6 +30,11 @@ export function normalizeStudentPayload(student) {
     ...student,
     name: Array.isArray(student?.name) ? student.name : [student?.name].filter(Boolean),
   }
+}
+
+export async function adminLogin(payload) {
+  const { data } = await api.post('/admin/login', payload)
+  return data
 }
 
 export async function getStudents() {
@@ -70,6 +84,56 @@ export async function getStages() {
 export async function getPlacements() {
   const { data } = await api.get('/placements')
   return Array.isArray(data) ? data : []
+}
+
+export async function getAdminCompanies() {
+  const { data } = await api.get('/admin/companies')
+  return Array.isArray(data) ? data : []
+}
+
+export async function getAdminCompanyById(id) {
+  const { data } = await api.get(`/admin/companies/${id}`)
+  return data
+}
+
+export async function deleteAdminCompany(id) {
+  const { data } = await api.delete(`/admin/companies/${id}`)
+  return data
+}
+
+export async function getAdminStudents() {
+  const { data } = await api.get('/admin/students')
+  return Array.isArray(data) ? data.map(normalizeStudentPayload) : []
+}
+
+export async function getAdminStudentById(id) {
+  const { data } = await api.get(`/admin/students/${id}`)
+  return normalizeStudentPayload(data)
+}
+
+export async function deleteAdminStudent(id) {
+  const { data } = await api.delete(`/admin/students/${id}`)
+  return data
+}
+
+export async function getAdminApplications() {
+  const { data } = await api.get('/admin/applications')
+  return Array.isArray(data) ? data : []
+}
+
+export async function deleteAdminApplication(id) {
+  const { data } = await api.delete(`/admin/applications/${id}`)
+  return data
+}
+
+export async function getAdminApplicationStats() {
+  const { data } = await api.get('/admin/applications/stats')
+  return data
+}
+
+export async function getAdminStats() {
+  const { data } = await api.get('/admin/stats')
+  return data
 }
 
 export default api

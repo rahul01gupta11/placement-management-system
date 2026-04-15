@@ -1,6 +1,5 @@
 import PlacementStats from "../models/PlacementStats.js";
 
-// ➕ Add Final Placement
 export const addPlacement = async (req, res) => {
   try {
     const placement = await PlacementStats.create(req.body);
@@ -10,10 +9,9 @@ export const addPlacement = async (req, res) => {
   }
 };
 
-// 📄 Get Placements
 export const getPlacements = async (req, res) => {
   try {
-    const placements = await PlacementStats.find().populate("roll_no");
+    const placements = await PlacementStats.find().sort({ ctc: -1, _id: -1 });
     res.json(placements);
   } catch (error) {
     res.status(500).json({ error: error.message });

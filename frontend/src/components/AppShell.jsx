@@ -2,19 +2,39 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.jsx'
 
 function SidebarLink({ to, label }) {
+  const baseClass =
+    'rounded-2xl border px-4 py-3 text-sm font-medium transition hover:-translate-y-0.5'
+
+  if (to.startsWith('#')) {
+    return (
+      <a
+        href={to}
+        className={`${baseClass} border-slate-200/70 bg-white/70 text-slate-600 hover:border-amber-200 hover:text-slate-900`}
+      >
+        {label}
+      </a>
+    )
+  }
+
   return (
-    <a
-      href={to}
-      className="rounded-2xl border border-slate-200/70 bg-white/70 px-4 py-3 text-sm font-medium text-slate-600 transition hover:-translate-y-0.5 hover:border-blue-200 hover:text-slate-900"
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `${baseClass} ${
+          isActive
+            ? 'border-amber-300 bg-amber-100 text-slate-950'
+            : 'border-slate-200/70 bg-white/70 text-slate-600 hover:border-amber-200 hover:text-slate-900'
+        }`
+      }
     >
       {label}
-    </a>
+    </NavLink>
   )
 }
 
 function AppShell({ title, subtitle, roleLabel, notice, sidebarItems, children }) {
   const { logout, role, user } = useAuth()
-  const dashboardPath = role === 'student' ? '/student' : '/admin'
+  const dashboardPath = role === 'student' ? '/student' : '/admin/dashboard'
   const displayName = Array.isArray(user?.name) ? user.name.join(' ') : user?.name || 'Portal User'
 
   return (
@@ -23,7 +43,7 @@ function AppShell({ title, subtitle, roleLabel, notice, sidebarItems, children }
         <header className="border-b border-slate-200/80 bg-white/70 px-6 py-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <NavLink to="/" className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-700">
+              <NavLink to="/" className="text-xs font-semibold uppercase tracking-[0.35em] text-amber-700">
                 Placement Management System
               </NavLink>
               <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
@@ -32,13 +52,13 @@ function AppShell({ title, subtitle, roleLabel, notice, sidebarItems, children }
               <p className="mt-2 max-w-2xl text-sm text-slate-600">{subtitle}</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+              <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-950">
                 <p className="font-semibold">{displayName}</p>
-                <p className="text-xs uppercase tracking-[0.25em] text-blue-700">{roleLabel}</p>
+                <p className="text-xs uppercase tracking-[0.25em] text-amber-700">{roleLabel}</p>
               </div>
               <NavLink
                 to={dashboardPath}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700"
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-amber-200 hover:text-amber-700"
               >
                 Dashboard
               </NavLink>
@@ -56,7 +76,7 @@ function AppShell({ title, subtitle, roleLabel, notice, sidebarItems, children }
         <div className="grid flex-1 gap-0 lg:grid-cols-[260px_minmax(0,1fr)]">
           <aside className="border-b border-slate-200/80 bg-slate-950 px-6 py-6 text-slate-100 lg:border-b-0 lg:border-r">
             <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="text-xs uppercase tracking-[0.35em] text-emerald-300">Workspace</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-amber-300">Workspace</p>
               <p className="mt-3 text-lg font-semibold text-white">{roleLabel}</p>
               <p className="mt-2 text-sm text-slate-300">{notice}</p>
             </div>

@@ -15,26 +15,19 @@ const initialLoginForm = {
   fullName: '',
 }
 
-const initialAdminForm = {
-  adminId: '',
-  adminName: '',
-}
-
 function AuthPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { loginStudent, registerStudent, loginAdmin } = useAuth()
+  const { loginStudent, registerStudent } = useAuth()
   const [activeTab, setActiveTab] = useState('student-login')
   const [loginForm, setLoginForm] = useState(initialLoginForm)
   const [registerForm, setRegisterForm] = useState(initialRegisterForm)
-  const [adminForm, setAdminForm] = useState(initialAdminForm)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   const from = location.state?.from
 
   const redirectAfterStudent = () => navigate(from || '/student', { replace: true })
-  const redirectAfterAdmin = () => navigate('/admin', { replace: true })
 
   const handleStudentLogin = async (event) => {
     event.preventDefault()
@@ -75,40 +68,26 @@ function AuthPage() {
     }
   }
 
-  const handleAdminLogin = (event) => {
-    event.preventDefault()
-    setError('')
-
-    try {
-      loginAdmin(adminForm)
-      redirectAfterAdmin()
-    } catch (err) {
-      setError(getErrorMessage(err, 'Unable to continue as admin.'))
-    }
-  }
-
   const sharedInputClass =
-    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100'
+    'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100'
 
   return (
     <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="glass-panel card-shadow rounded-[32px] border border-white/60 p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-blue-700">Access portal</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-amber-700">Student access</p>
           <h1 className="mt-4 text-4xl font-black tracking-tight text-slate-950">
-            Connect the frontend to the existing backend data.
+            Placement workflows for students, with backend-backed registration.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            Student registration uses POST /api/students. Student sign-in is matched against existing
-            student records from GET /api/students. The backend currently has no admin authentication
-            endpoint, so admin access below is frontend-only.
+            Sign in with an existing student record or register a new one using the current backend schema.
+            Admin access now has its own secured login page.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {[
               ['student-login', 'Student Login'],
               ['student-register', 'Student Register'],
-              ['admin-access', 'Admin Access'],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -120,7 +99,7 @@ function AuthPage() {
                 className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
                   activeTab === value
                     ? 'bg-slate-950 text-white shadow-lg'
-                    : 'border border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:text-blue-700'
+                    : 'border border-slate-200 bg-white text-slate-700 hover:border-amber-200 hover:text-amber-700'
                 }`}
               >
                 {label}
@@ -157,7 +136,7 @@ function AuthPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                className="w-full rounded-2xl bg-amber-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-amber-300"
               >
                 {loading ? 'Signing in...' : 'Sign in as student'}
               </button>
@@ -185,7 +164,7 @@ function AuthPage() {
                 required
               />
               <input
-                className="sm:col-span-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                className="sm:col-span-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
                 placeholder="Full name"
                 value={registerForm.full_name}
                 onChange={(event) =>
@@ -207,7 +186,7 @@ function AuthPage() {
                 required
               />
               <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                Backend schema stores name as an array. Single-name input is converted automatically.
+                Names are stored using the existing array-based student schema and converted automatically.
               </div>
               <button
                 type="submit"
@@ -218,69 +197,45 @@ function AuthPage() {
               </button>
             </form>
           ) : null}
-
-          {activeTab === 'admin-access' ? (
-            <form className="mt-6 space-y-4" onSubmit={handleAdminLogin}>
-              <input
-                className={sharedInputClass}
-                placeholder="Admin ID"
-                value={adminForm.adminId}
-                onChange={(event) =>
-                  setAdminForm((current) => ({ ...current, adminId: event.target.value }))
-                }
-                required
-              />
-              <input
-                className={sharedInputClass}
-                placeholder="Admin name"
-                value={adminForm.adminName}
-                onChange={(event) =>
-                  setAdminForm((current) => ({ ...current, adminName: event.target.value }))
-                }
-                required
-              />
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                This admin access mode exists because the backend currently has no admin login route.
-              </div>
-              <button
-                type="submit"
-                className="w-full rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
-              >
-                Continue to admin dashboard
-              </button>
-            </form>
-          ) : null}
         </div>
 
         <div className="rounded-[32px] border border-slate-200/70 bg-slate-950 p-8 text-white shadow-[0_30px_70px_rgba(15,23,42,0.2)]">
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-emerald-300">What the frontend uses</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-amber-300">Portal routes</p>
           <div className="mt-6 space-y-4">
             <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="font-semibold">Student data</p>
+              <p className="font-semibold">Student authentication</p>
               <p className="mt-2 text-sm text-slate-300">
-                GET /api/students for sign-in matching and POST /api/students for registration.
+                Student access still uses the current record-matching flow built on top of the existing student API.
               </p>
             </div>
             <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="font-semibold">Company and application data</p>
+              <p className="font-semibold">Admin authentication</p>
               <p className="mt-2 text-sm text-slate-300">
-                Companies, applications, stages, and placements are pulled live in each dashboard.
+                Admin access now lives behind the secured backend endpoint at /api/admin/login.
               </p>
             </div>
             <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-              <p className="font-semibold">No invented backend endpoints</p>
+              <p className="font-semibold">Placement data</p>
               <p className="mt-2 text-sm text-slate-300">
-                The UI only calls routes already present in backend/server.js.
+                Companies, applications, stages, placements, and admin stats stay connected to the same backend data model.
               </p>
             </div>
           </div>
 
-          <Link
-            to="/"
-            className="mt-8 inline-flex rounded-2xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            Back to homepage
-          </Link>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              to="/admin/login"
+              className="inline-flex rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
+            >
+              Admin login
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex rounded-2xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              Back to homepage
+            </Link>
+          </div>
         </div>
       </div>
     </div>

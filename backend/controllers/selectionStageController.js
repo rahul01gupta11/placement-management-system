@@ -1,6 +1,5 @@
 import SelectionStage from "../models/SelectionStage.js";
 
-// ➕ Add Stage Result
 export const addStage = async (req, res) => {
   try {
     const stage = await SelectionStage.create(req.body);
@@ -10,13 +9,9 @@ export const addStage = async (req, res) => {
   }
 };
 
-// 📄 Get All Stages
 export const getStages = async (req, res) => {
   try {
-    const stages = await SelectionStage.find()
-      .populate("roll_no")
-      .populate("company_id");
-
+    const stages = await SelectionStage.find().sort({ _id: -1 });
     res.json(stages);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -1,8 +1,10 @@
 import { createContext, useEffect, useState } from 'react'
 import {
+  adminLogin,
   createStudent,
   getStudents,
   normalizeStudentPayload,
+  setAdminAuthToken,
 } from '../services/api.js'
 
 const STORAGE_KEY = 'placement-management-session'
@@ -29,10 +31,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (session) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
-      return
+    } else {
+      localStorage.removeItem(STORAGE_KEY)
     }
 
-    localStorage.removeItem(STORAGE_KEY)
+    setAdminAuthToken(session?.role === 'admin' ? session?.token : null)
   }, [session])
 
   const loginStudent = async ({ rollNo, fullName }) => {
@@ -73,24 +76,19 @@ export function AuthProvider({ children }) {
     return normalized
   }
 
-  const loginAdmin = ({ adminId, adminName }) => {
-    const safeAdminId = adminId.trim()
-    const safeAdminName = adminName.trim()
-
-    if (!safeAdminId || !safeAdminName) {
-      throw new Error('Enter both admin ID and admin name.')
-    }
+  const loginAdmin = async ({ adminId, password }) => {
+    const response = await adminLogin({
+      admin_id: adminId.trim(),
+      password,
+    })
 
     setSession({
       role: 'admin',
-      user: {
-        admin_id: safeAdminId,
-        name: safeAdminName,
-      },
-      meta: {
-        isFrontendOnly: true,
-      },
+      user: response.admin,
+      token: response.token,
     })
+
+    return response.admin
   }
 
   const logout = () => setSession(null)
@@ -100,7 +98,7 @@ export function AuthProvider({ children }) {
       value={{
         role: session?.role ?? null,
         user: session?.user ?? null,
-        meta: session?.meta ?? null,
+        token: session?.token ?? null,
         isAuthenticated: Boolean(session),
         loginStudent,
         registerStudent,

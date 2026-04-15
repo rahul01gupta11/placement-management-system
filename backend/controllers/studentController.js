@@ -1,6 +1,5 @@
 import Student from "../models/Student.js";
 
-// ➕ Create Student
 export const createStudent = async (req, res) => {
   try {
     const student = await Student.create(req.body);
@@ -10,10 +9,9 @@ export const createStudent = async (req, res) => {
   }
 };
 
-// 📄 Get All Students
 export const getStudents = async (req, res) => {
   try {
-    const students = await Student.find();
+    const students = await Student.find().sort({ _id: -1 });
     res.json(students);
   } catch (error) {
     res.status(500).json({ error: error.message });
